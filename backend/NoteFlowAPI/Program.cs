@@ -2,6 +2,7 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using NoteFlowAPI.Data;
 using System.Text;
 
 DotEnv.Load();
@@ -9,7 +10,7 @@ var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(configuration["MONGO_CONNECTION_STRING"]));
+builder.Services.AddSingleton<MongoDbService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
