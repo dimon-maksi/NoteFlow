@@ -5,12 +5,22 @@ using MongoDB.Driver;
 using NoteFlowAPI.Data;
 using System.Text;
 
-DotEnv.Load();
+DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] {"../.env"}));
+
 var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<MongoDbService>();
+
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+
+if (string.IsNullOrEmpty(jwtSecret))
+{
+  throw new ArgumentNullException("JWT_SECRET is missing from env");
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
