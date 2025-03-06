@@ -1,9 +1,11 @@
 using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using NoteFlowAPI.Data;
 using System.Text;
+using NoteFlowAPI.Interfaces;
+using NoteFlowAPI.Repository;
+using NoteFlowAPI.Services;
 
 DotEnv.Load();
 var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
@@ -29,6 +31,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<ConspectInterfaces, ConspectRepository>();
+builder.Services.AddScoped<ConspectsServices>();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
@@ -36,7 +42,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseHttpsRedirection();
 
 app.MapGet("/", () =>
