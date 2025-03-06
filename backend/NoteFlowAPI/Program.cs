@@ -36,7 +36,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+dadaaadad
 app.UseHttpsRedirection();
 
 app.MapGet("/", () =>
