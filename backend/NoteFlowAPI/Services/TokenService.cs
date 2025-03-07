@@ -7,9 +7,19 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
+/// <summary>
+/// Service responsible for generating JWT tokens.
+/// </summary>
+
 public class TokenService
 {
     private readonly string _secretKey = "your_secret_key_here";
+
+    /// <summary>
+    /// Generates a JWT token for the specified user.
+    /// </summary>
+    /// <param name="user">The user for whom to generate the token.</param>
+    /// <returns>A JWT token string.</returns>
 
     public string GenerateToken(User user)
     {
