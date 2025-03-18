@@ -1,6 +1,7 @@
 ﻿using NoteFlowAPI.Models;
 using NoteFlowAPI.Interfaces;
 using MongoDB.Driver;
+using NoteFlowAPI.DTO.ConspectFilSort;
 
 namespace NoteFlowAPI.Repository;
 
@@ -86,5 +87,25 @@ public class ConspectRepository : IConspect
             Console.WriteLine($"Error deleting book: {ex.Message}");
             throw;
         }
+    }
+
+    public async Task<List<Conspect>> GetAsync(ConspectQueryParams sortBy)
+    {
+        var builder = Builders<Conspect>.Filter;
+        var filter = builder.Empty;
+
+        if (!string.IsNullOrWhiteSpace(sortBy.SearchTitle))
+        {
+            filter &= builder.Regex(x => x.Title,
+                new MongoDB.Bson.BsonRegularExpression(sortBy.SearchTitle, "i"));
+        }
+        var sort = sortBy.SortDirection?.ToLower() == "desc"
+            ? Builders<Conspect>.Sort.Descending(sortBy.SortBy)
+            : Builders<Conspect>.Sort.Ascending(sortBy.SortBy);
+        
+        return await _conspectCollection
+            .Find(filter)
+            .Sort(sort)
+            .ToListAsync();
     }
 }

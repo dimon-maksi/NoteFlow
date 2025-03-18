@@ -2,11 +2,12 @@
 using NoteFlowAPI.Models;
 using NoteFlowAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using NoteFlowAPI.DTO.ConspectFilSort;
 using NoteFlowAPI.Mappers;
 
 namespace NoteFlowAPI.Controlers;
 
-[Microsoft.AspNetCore.Components.Route("NoteFlow/api/conspect")]
+[Route("NoteFlow/api/conspect")]
 [ApiController]
 
 public class ConspectControler : ControllerBase
@@ -33,10 +34,12 @@ public class ConspectControler : ControllerBase
    
    
    [HttpGet]
-   public async Task<IActionResult> GetAll() =>
+   public async Task<IActionResult> GetAll([FromQuery] ConspectQueryParams queryParams) =>
       await ExecuteAsync(
-         async () => (await _conspectService.GetAsync()).Select(c => c.ToConspectDto()).ToList(),
-         "Error retrieving conspect");
+         async () => (await _conspectService.GetAsync(queryParams))
+            .Select(c => c.ToConspectDto())
+            .ToList(),
+         "Error retrieving conspects");
    
    
    [HttpGet("id/{id}")]

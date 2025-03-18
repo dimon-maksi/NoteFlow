@@ -1,4 +1,5 @@
-﻿using NoteFlowAPI.Interfaces;
+﻿using NoteFlowAPI.DTO.ConspectFilSort;
+using NoteFlowAPI.Interfaces;
 using NoteFlowAPI.Models;
 
 namespace NoteFlowAPI.Services;
@@ -26,4 +27,7 @@ public class ConspectServices
     
     public async Task DeleteAsync(string id) =>
         await _conspectRepository.DeleteAsync(id);
+    
+    public async Task<List<Conspect>> GetAsync(ConspectQueryParams queryParams) =>
+        await _conspectRepository.GetAsync(queryParams);
 }
