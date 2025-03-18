@@ -2,6 +2,7 @@
 using NoteFlowAPI.Models;
 using NoteFlowAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using NoteFlowAPI.Mappers;
 
 namespace NoteFlowAPI.Controlers;
 
@@ -33,14 +34,17 @@ public class ConspectControler : ControllerBase
    
    [HttpGet]
    public async Task<IActionResult> GetAll() =>
-      await ExecuteAsync(_conspectService.GetAsync, "Error retrieving conspect");
+      await ExecuteAsync(
+         async () => (await _conspectService.GetAsync()).Select(c => c.ToConspectDto()).ToList(),
+         "Error retrieving conspect");
    
    
    [HttpGet("id/{id}")]
    public async Task<IActionResult> GetById([FromRoute] string id) =>
       await ExecuteAsync(
-         () => _conspectService.GetByIdAsync(id),
+         async () => (await _conspectService.GetByIdAsync(id))?.ToConspectDto(),
          $"Conspect with ID '{id}' not found");
+
    
    
    [HttpPost]
@@ -48,14 +52,7 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspect = new Conspect()
-         {
-            Title = conspectDTO.Title,
-            Type = conspectDTO.Type,
-            Description = conspectDTO.Description,
-            Text = conspectDTO.Text,
-         };
-         
+         var conspect = conspectDTO.ToConspect();
          await _conspectService.CreateAsync(conspect);
          return CreatedAtAction(nameof(GetById), new { id = conspect.Id }, conspect);
       }
@@ -72,12 +69,8 @@ public class ConspectControler : ControllerBase
       {
          var conspect = await _conspectService.GetByIdAsync(id)
                          ?? throw new KeyNotFoundException($"Cannot find conspect with ID '{id}'");
-
-         conspect.Title = updateDTO.Title;
-         conspect.Type = updateDTO.Type;
-         conspect.Description = updateDTO.Description;
-         conspect.Text = updateDTO.Text;
-
+         
+         conspect.UpdateFromDto(updateDTO);
          await _conspectService.UpdateAsync(id, conspect);
          return Ok(conspect);
       }
