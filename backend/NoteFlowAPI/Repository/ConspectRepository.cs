@@ -4,17 +4,17 @@ using MongoDB.Driver;
 
 namespace NoteFlowAPI.Repository;
 
-public class ConspectRepository : ConspectInterfaces
+public class ConspectRepository : IConspect
 {
-    private readonly IMongoCollection<Conspects> _conspectCollection;
+    private readonly IMongoCollection<Conspect> _conspectCollection;
 
     public ConspectRepository(IMongoDatabase database)
     {
-        _conspectCollection = database.GetCollection<Conspects>("conspects");
+        _conspectCollection = database.GetCollection<Conspect>("conspect");
     }
     
     
-    public async Task<List<Conspects>> GetAsync()
+    public async Task<List<Conspect>> GetAsync()
     {
         try
         {
@@ -22,12 +22,12 @@ public class ConspectRepository : ConspectInterfaces
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error geting conspects: {ex.Message}");
+            Console.WriteLine($"Error geting conspect: {ex.Message}");
             throw;
         }
     }
 
-    public async Task<Conspects> GetByIdAsync(string id)
+    public async Task<Conspect> GetByIdAsync(string id)
     {
         try
         {
@@ -35,16 +35,16 @@ public class ConspectRepository : ConspectInterfaces
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting conspects by id: {ex.Message}");
+            Console.WriteLine($"Error getting conspect by id: {ex.Message}");
             throw;
         }
     }
 
-    public async Task CreateAsync(Conspects conspects)
+    public async Task CreateAsync(Conspect conspect)
     {
         try
         {
-            await _conspectCollection.InsertOneAsync(conspects);
+            await _conspectCollection.InsertOneAsync(conspect);
         }
         catch (Exception ex)
         {
@@ -54,11 +54,11 @@ public class ConspectRepository : ConspectInterfaces
     }
 
 
-    public async Task UpdateAsync(string id, Conspects conspects)
+    public async Task UpdateAsync(string id, Conspect conspect)
     {
         try
         {
-            var result = await _conspectCollection.ReplaceOneAsync(c => c.Id == id, conspects);
+            var result = await _conspectCollection.ReplaceOneAsync(c => c.Id == id, conspect);
             if (result.ModifiedCount == 0)
             {
                 throw new KeyNotFoundException($"Conspect with ID {id} not found.");

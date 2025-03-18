@@ -5,7 +5,7 @@ using MongoDB.Driver.Linq;
 
 namespace NoteFlowAPI.Models;
 
-public class Conspects
+public class Conspect
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

@@ -31,8 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<ConspectInterfaces, ConspectRepository>();
-builder.Services.AddScoped<ConspectsServices>();
+builder.Services.AddScoped<IConspect, ConspectRepository>();
+builder.Services.AddScoped<ConspectServices>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 

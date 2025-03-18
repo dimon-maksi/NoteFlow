@@ -10,17 +10,17 @@ namespace NoteFlowAPI.Controlers;
 
 public class ConspectControler : ControllerBase
 {
-   private readonly ConspectsServices _conspectsService;
+   private readonly ConspectServices _conspectService;
    
-   public ConspectControler(ConspectsServices conspectsService) => 
-      _conspectsService = conspectsService;
+   public ConspectControler(ConspectServices conspectService) => 
+      _conspectService = conspectService;
 
    private async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage)
    {
       try
       {
          var result = await action();
-         if (result == null || (result is IEnumerable<Conspects> conspects && !conspects.Any()))
+         if (result == null || (result is IEnumerable<Conspect> conspect && !conspect.Any()))
             return NotFound(errorMessage);
          return Ok(result);
       }
@@ -33,13 +33,13 @@ public class ConspectControler : ControllerBase
    
    [HttpGet]
    public async Task<IActionResult> GetAll() =>
-      await ExecuteAsync(_conspectsService.GetAsync, "Error retrieving conspects");
+      await ExecuteAsync(_conspectService.GetAsync, "Error retrieving conspect");
    
    
    [HttpGet("id/{id}")]
    public async Task<IActionResult> GetById([FromRoute] string id) =>
       await ExecuteAsync(
-         () => _conspectsService.GetByIdAsync(id),
+         () => _conspectService.GetByIdAsync(id),
          $"Conspect with ID '{id}' not found");
    
    
@@ -48,7 +48,7 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspects = new Conspects()
+         var conspect = new Conspect()
          {
             Title = conspectDTO.Title,
             Type = conspectDTO.Type,
@@ -56,8 +56,8 @@ public class ConspectControler : ControllerBase
             Text = conspectDTO.Text,
          };
          
-         await _conspectsService.CreateAsync(conspects);
-         return CreatedAtAction(nameof(GetById), new { id = conspects.Id }, conspects);
+         await _conspectService.CreateAsync(conspect);
+         return CreatedAtAction(nameof(GetById), new { id = conspect.Id }, conspect);
       }
       catch (Exception ex)
       {
@@ -70,16 +70,16 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspects = await _conspectsService.GetByIdAsync(id)
+         var conspect = await _conspectService.GetByIdAsync(id)
                          ?? throw new KeyNotFoundException($"Cannot find conspect with ID '{id}'");
 
-         conspects.Title = updateDTO.Title;
-         conspects.Type = updateDTO.Type;
-         conspects.Description = updateDTO.Description;
-         conspects.Text = updateDTO.Text;
+         conspect.Title = updateDTO.Title;
+         conspect.Type = updateDTO.Type;
+         conspect.Description = updateDTO.Description;
+         conspect.Text = updateDTO.Text;
 
-         await _conspectsService.UpdateAsync(id, conspects);
-         return Ok(conspects);
+         await _conspectService.UpdateAsync(id, conspect);
+         return Ok(conspect);
       }
       catch (KeyNotFoundException ex)
       {
@@ -96,10 +96,10 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspects = await _conspectsService.GetByIdAsync(id)
+         var conspect = await _conspectService.GetByIdAsync(id)
                          ?? throw new KeyNotFoundException($"Cannot find conspect with ID '{id}'");
 
-         await _conspectsService.DeleteAsync(id);
+         await _conspectService.DeleteAsync(id);
          return NoContent();
       }
       catch (KeyNotFoundException ex)
