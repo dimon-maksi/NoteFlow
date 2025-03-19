@@ -1,4 +1,4 @@
-﻿using NoteFlowAPI.DTO.ConspectFilSort;
+﻿using NoteFlowAPI.Helpers.QueryParam;
 using NoteFlowAPI.Interfaces;
 using NoteFlowAPI.Models;
 

@@ -1,4 +1,4 @@
-﻿namespace NoteFlowAPI.DTO.ConspectFilSort;
+﻿namespace NoteFlowAPI.Helpers.QueryParam;
 
 public class ConspectQueryParams
 {

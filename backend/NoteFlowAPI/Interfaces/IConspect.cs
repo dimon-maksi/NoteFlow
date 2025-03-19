@@ -1,5 +1,5 @@
 ﻿using NoteFlowAPI.Models;
-using NoteFlowAPI.DTO.ConspectFilSort;
+using NoteFlowAPI.Helpers.QueryParam;
 
 namespace NoteFlowAPI.Interfaces;
 

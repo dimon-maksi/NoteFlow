@@ -2,7 +2,7 @@
 using NoteFlowAPI.Models;
 using NoteFlowAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using NoteFlowAPI.DTO.ConspectFilSort;
+using NoteFlowAPI.Helpers.QueryParam;
 using NoteFlowAPI.Mappers;
 
 namespace NoteFlowAPI.Controlers;

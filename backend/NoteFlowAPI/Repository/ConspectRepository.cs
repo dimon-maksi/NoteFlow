@@ -1,7 +1,7 @@
 ﻿using NoteFlowAPI.Models;
 using NoteFlowAPI.Interfaces;
 using MongoDB.Driver;
-using NoteFlowAPI.DTO.ConspectFilSort;
+using NoteFlowAPI.Helpers.QueryParam;
 
 namespace NoteFlowAPI.Repository;
 
