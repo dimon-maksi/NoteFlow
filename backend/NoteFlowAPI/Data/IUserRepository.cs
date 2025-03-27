@@ -23,5 +23,11 @@ public interface IUserRepository
     /// <param name="user">The user to create.</param>
 
     Task CreateUserAsync(User user);
+
+    /// <summary>
+    /// Enables role changes
+    /// </summary>
+    ///
+    Task UpdateUserAsync(User user);
 }
 

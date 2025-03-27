@@ -26,7 +26,10 @@ public class JwtMiddleware
     public JwtMiddleware(RequestDelegate next, IConfiguration config)
     {
         _next = next;
-        _secretKey = config["Jwt:Secret"] ?? "your_secret_key_here";
+        _secretKey = config["JWT_SECRET"];
+        if (string.IsNullOrEmpty(_secretKey)){
+          throw new ArgumentNullException("secret is missing");
+        }
     }
 
     /// <summary>

@@ -47,11 +47,14 @@ public class AuthService : IAuthService
     /// </summary>
     /// <param name="registerDto">The registration information.</param>
 
-    public async Task RegisterAsync(RegisterRequestDto registerDto)
+    public async Task<string> RegisterAsync(RegisterRequestDto registerDto)
     {
         var hashedPassword = BCrypt.HashPassword(registerDto.Password);
         var user = new User { Email = registerDto.Email, PasswordHash = hashedPassword };
         await _userRepository.CreateUserAsync(user);
+
+        return _tokenService.GenerateToken(user);
     }
+
 }
 

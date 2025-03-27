@@ -22,6 +22,6 @@ public interface IAuthService
     /// </summary>
     /// <param name="registerDto">The registration information.</param>
 
-    Task RegisterAsync(RegisterRequestDto registerDto);
+    Task<string> RegisterAsync(RegisterRequestDto registerDto);
 }
 

@@ -39,5 +39,12 @@ public class UserRepository : IUserRepository
     
     public async Task CreateUserAsync(User user) =>
         await _users.InsertOneAsync(user);
+
+    /// <summary>
+    /// Updates an existing user in the MongoDB database.
+    /// </summary>
+    /// <param name="user">The user to update.</param>
+    public async Task UpdateUserAsync(User user) =>
+        await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
 }
 
