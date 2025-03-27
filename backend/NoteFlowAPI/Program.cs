@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using NoteFlowAPI.Data;
+using NoteFlowAPI.Services;
 using System.Text;
 
 DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] {"../.env"}));
@@ -12,6 +13,16 @@ var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build()
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<MongoDbService>();
+builder.Services.AddSingleton<IMongoDatabase>(provider => 
+    provider.GetRequiredService<MongoDbService>().Database);
+
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddControllers();
 
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
@@ -39,14 +50,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 //app.UseHttpsRedirection();
 
 app.MapGet("/", () =>
@@ -55,7 +64,10 @@ app.MapGet("/", () =>
 })
 .WithName("NoteFlow");
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
