@@ -21,9 +21,10 @@ public class TokenService
 
     public TokenService(IConfiguration config)
     {
-        _secretKey = config["JWT_SECRET"] ?? throw new ArgumentNullException(nameof(config), "JWT_SECRET is missing from configuration");
-        _issuer = config["JWT_ISSUER"] ?? throw new ArgumentNullException(nameof(config), "JWT_ISSUER is missing from configuration");
-        _audience = config["JWT_AUDIENCE"] ?? throw new ArgumentNullException(nameof(config), "JWT_AUDIENCE is missing from configuration");
+        _secretKey = Environment.GetEnvironmentVariable("JWT_SECRET") 
+            ?? throw new ArgumentNullException("JWT_SECRET is missing");
+        _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+        _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
     }
 
     /// <summary>
@@ -40,15 +41,18 @@ public class TokenService
           throw new InvalidOperationException("JWT secret should more then 256 bits long");
         }
 
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
+        };
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(2),
+            Issuer = _issuer,
+            Audience = _audience,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
