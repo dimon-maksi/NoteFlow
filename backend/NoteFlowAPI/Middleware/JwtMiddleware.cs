@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 /// <summary>
 /// Middleware that validates JWT tokens in request headers.
@@ -52,16 +53,32 @@ public class JwtMiddleware
 
     private void AttachUserToContext(HttpContext context, string token)
     {
+      try
+      {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_secretKey);
+        
+        SecurityToken validatedToken;
         tokenHandler.ValidateToken(token, new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ClockSkew = System.TimeSpan.Zero
-        }, out _);
+          {
+              ValidateIssuerSigningKey = true,
+              IssuerSigningKey = new SymmetricSecurityKey(key),
+              ValidateIssuer = false,
+              ValidateAudience = false,
+              ClockSkew = System.TimeSpan.Zero
+          }, out validatedToken);
+        
+          var jwtToken = validatedToken as JwtSecurityToken;
+          if (jwtToken != null)
+          {
+              var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
+              context.User = new ClaimsPrincipal(identity);
+          }
+      }
+      catch
+      {
+        // If token validation fails, we don't attach any user to the context
+      }
     }
 }
 

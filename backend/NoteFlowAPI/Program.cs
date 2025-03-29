@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using NoteFlowAPI.Data;
 using NoteFlowAPI.Services;
+using NoteFlowAPI.Middleware;
 using System.Text;
 
 DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] {"../.env"}));
@@ -65,6 +66,7 @@ app.MapGet("/", () =>
 .WithName("NoteFlow");
 
 app.UseRouting();
+app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
