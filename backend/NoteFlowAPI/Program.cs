@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using NoteFlowAPI.Data;
+using NoteFlowAPI.Middleware;
 using NoteFlowAPI.Services;
 
 DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] { "../.env" }));

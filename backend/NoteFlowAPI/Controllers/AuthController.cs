@@ -22,9 +22,15 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="authService">The service that handles authentication logic.</param>
 
-    public AuthController(IAuthService authService)
+    public AuthController(
+        IAuthService authService,
+        TokenBlacklistService tokenBlacklistService,
+        TokenService tokenService
+    )
     {
         _authService = authService;
+        _tokenBlacklistService = tokenBlacklistService;
+        _tokenService = tokenService;
     }
 
     /// <summary>
