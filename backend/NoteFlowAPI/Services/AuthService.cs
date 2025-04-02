@@ -1,10 +1,10 @@
 namespace NoteFlowAPI.Services;
 
+using System.Threading.Tasks;
+using BCrypt.Net;
 using NoteFlowAPI.Data;
 using NoteFlowAPI.DTOs;
 using NoteFlowAPI.Models;
-using System.Threading.Tasks;
-using BCrypt.Net;
 
 /// <summary>
 /// Service that implements authentication and registration logic.
@@ -39,7 +39,7 @@ public class AuthService : IAuthService
         if (user is null || !BCrypt.Verify(loginDto.Password, user.PasswordHash))
             return null;
 
-        return _tokenService.GenerateToken(user);
+        return _tokenService.GenerateToken(user, loginDto.RememberMe);
     }
 
     /// <summary>
@@ -55,6 +55,4 @@ public class AuthService : IAuthService
 
         return _tokenService.GenerateToken(user);
     }
-
 }
-

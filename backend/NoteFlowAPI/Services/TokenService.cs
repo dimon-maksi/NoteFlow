@@ -18,6 +18,9 @@ public class TokenService
     private readonly string _issuer;
     private readonly string _audience;
 
+    private readonly TimeSpan _default = TimeSpan.FromHours(2);
+    private readonly TimeSpan _extended = TimeSpan.FromDays(30);
+
     /// <summary>
     /// Initializes a new instance of the TokenService class.
     /// </summary>
@@ -39,7 +42,7 @@ public class TokenService
     /// <param name="user">The user for whom to generate the token.</param>
     /// <returns>A JWT token string.</returns>
 
-    public string GenerateToken(User user)
+    public string GenerateToken(User user, bool rememberMe = false)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_secretKey);
@@ -47,6 +50,8 @@ public class TokenService
         {
             throw new InvalidOperationException("JWT secret should more then 256 bits long");
         }
+
+        TimeSpan expirationTime = rememberMe ? _extended : _default;
 
         var claims = new List<Claim>
         {
@@ -57,7 +62,7 @@ public class TokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(2),
+            Expires = DateTime.UtcNow.Add(expirationTime),
             Issuer = _issuer,
             Audience = _audience,
             SigningCredentials = new SigningCredentials(
