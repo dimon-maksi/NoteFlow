@@ -30,4 +30,6 @@ public class Conspect
     [BsonElement("dateTime")]
     public DateTime DateTime { get; set; }
     
+    [BsonElement("userId")]
+    public string? UserId { get; set; }
 }

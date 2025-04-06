@@ -1,4 +1,5 @@
-﻿using NoteFlowAPI.DTO.Conspect;
+﻿using Microsoft.AspNetCore.Authorization;
+using NoteFlowAPI.DTO.Conspect;
 using NoteFlowAPI.Models;
 using NoteFlowAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,9 @@ public class ConspectControler : ControllerBase
    
    public ConspectControler(ConspectServices conspectService) => 
       _conspectService = conspectService;
+   
+   public string GetUserId() =>
+      User.FindFirst("sub")?.Value ?? string.Empty;
 
    private async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage)
    {
@@ -51,11 +55,13 @@ public class ConspectControler : ControllerBase
    
    
    [HttpPost]
+   [Authorize]
    public async Task<IActionResult> PostAsync([FromBody] CreateConspectDTO conspectDTO)
    {
       try
       {
          var conspect = conspectDTO.ToConspect();
+         conspect.UserId = GetUserId();
          await _conspectService.CreateAsync(conspect);
          return CreatedAtAction(nameof(GetById), new { id = conspect.Id }, conspect);
       }
@@ -70,8 +76,9 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspect = await _conspectService.GetByIdAsync(id)
-                         ?? throw new KeyNotFoundException($"Cannot find conspect with ID '{id}'");
+         var conspect = await _conspectService.GetByIdAsync(id);
+         if (conspect == null || conspect.UserId != GetUserId())
+            return Forbid();
          
          conspect.UpdateFromDto(updateDTO);
          await _conspectService.UpdateAsync(id, conspect);
@@ -92,8 +99,9 @@ public class ConspectControler : ControllerBase
    {
       try
       {
-         var conspect = await _conspectService.GetByIdAsync(id)
-                         ?? throw new KeyNotFoundException($"Cannot find conspect with ID '{id}'");
+         var conspect = await _conspectService.GetByIdAsync(id);
+         if (conspect == null || conspect.UserId != GetUserId())
+            return Forbid();
 
          await _conspectService.DeleteAsync(id);
          return NoContent();
