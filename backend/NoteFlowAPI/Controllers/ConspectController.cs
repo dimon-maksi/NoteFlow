@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using NoteFlowAPI.DTO.Conspect;
 using NoteFlowAPI.Models;
 using NoteFlowAPI.Services;
@@ -14,12 +15,17 @@ namespace NoteFlowAPI.Controlers;
 public class ConspectControler : ControllerBase
 {
    private readonly ConspectServices _conspectService;
-   
-   public ConspectControler(ConspectServices conspectService) => 
+
+   public ConspectControler(ConspectServices conspectService) =>
       _conspectService = conspectService;
-   
-   public string GetUserId() =>
-      User.FindFirst("sub")?.Value ?? string.Empty;
+
+   public string GetUserId()
+   {
+      var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      if (string.IsNullOrEmpty(userId))
+         throw new UnauthorizedAccessException("User ID is missing or invalid.");
+      return userId;
+   }
 
    private async Task<IActionResult> ExecuteAsync<T>(Func<Task<T>> action, string errorMessage)
    {
@@ -35,8 +41,8 @@ public class ConspectControler : ControllerBase
          return StatusCode(500, new { message = errorMessage, error = ex.Message });
       }
    }
-   
-   
+
+
    [HttpGet]
    public async Task<IActionResult> GetAll([FromQuery] ConspectQueryParams queryParams) =>
       await ExecuteAsync(
@@ -44,16 +50,16 @@ public class ConspectControler : ControllerBase
             .Select(c => c.ToConspectDto())
             .ToList(),
          "Error retrieving conspects");
-   
-   
+
+
    [HttpGet("id/{id}")]
    public async Task<IActionResult> GetById([FromRoute] string id) =>
       await ExecuteAsync(
          async () => (await _conspectService.GetByIdAsync(id))?.ToConspectDto(),
          $"Conspect with ID '{id}' not found");
 
-   
-   
+
+
    [HttpPost]
    [Authorize]
    public async Task<IActionResult> PostAsync([FromBody] CreateConspectDTO conspectDTO)
@@ -70,16 +76,17 @@ public class ConspectControler : ControllerBase
          return StatusCode(500, new { message = "Error creating conspect", error = ex.Message });
       }
    }
-   
+
    [HttpPut("{id}")]
    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateConspectDTO updateDTO)
    {
       try
       {
          var conspect = await _conspectService.GetByIdAsync(id);
-         if (conspect == null || conspect.UserId != GetUserId())
+         var userId = GetUserId();
+         if (conspect == null || conspect.UserId != userId)
             return Forbid();
-         
+
          conspect.UpdateFromDto(updateDTO);
          await _conspectService.UpdateAsync(id, conspect);
          return Ok(conspect);
