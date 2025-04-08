@@ -8,7 +8,7 @@ using NoteFlowAPI.Mappers;
 
 namespace NoteFlowAPI.Controlers;
 
-[Route("NoteFlow/api/conspect")]
+[Route("api/conspect")]
 [ApiController]
 
 public class ConspectControler : ControllerBase

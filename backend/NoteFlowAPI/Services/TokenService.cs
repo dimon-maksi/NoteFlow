@@ -15,8 +15,8 @@ using NoteFlowAPI.Models;
 public class TokenService
 {
     private readonly string _secretKey;
-    private readonly string _issuer;
-    private readonly string _audience;
+    private readonly string? _issuer;
+    private readonly string? _audience;
 
     /// <summary>
     /// Initializes a new instance of the TokenService class.
@@ -27,10 +27,10 @@ public class TokenService
     public TokenService(IConfiguration config)
     {
         _secretKey =
-            Environment.GetEnvironmentVariable("JWT_SECRET")
+            config["JWT_SECRET"]
             ?? throw new ArgumentNullException("JWT_SECRET is missing");
-        _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-        _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+        _issuer = config["JWT_ISSUER"];
+        _audience = config["JWT_AUDIENCE"];
     }
 
     /// <summary>
