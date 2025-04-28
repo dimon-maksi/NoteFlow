@@ -9,5 +9,6 @@ public class ConspectDTO
     public string? Text { get; set; }
     public DateTime DateTime { get; set; }
     public bool IsPrivate { get; set; }
+    public List<string>? AllowedUserIds { get; set; }
 }
 
