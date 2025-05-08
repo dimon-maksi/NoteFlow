@@ -1,3 +1,5 @@
+namespace NoteFlowAPI.DTO.Conspect;
+
 public class AccessSettingsDto
 {
     public bool IsPrivate { get; set; }

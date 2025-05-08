@@ -1,7 +1,7 @@
-﻿using NoteFlowAPI.Models;
-using NoteFlowAPI.Interfaces;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using NoteFlowAPI.Helpers.QueryParam;
+using NoteFlowAPI.Interfaces;
+using NoteFlowAPI.Models;
 
 namespace NoteFlowAPI.Repository;
 
@@ -13,8 +13,7 @@ public class ConspectRepository : IConspect
     {
         _conspectCollection = database.GetCollection<Conspect>("conspect");
     }
-    
-    
+
     public async Task<List<Conspect>> GetAsync()
     {
         try
@@ -53,7 +52,6 @@ public class ConspectRepository : IConspect
             throw;
         }
     }
-
 
     public async Task UpdateAsync(string id, Conspect conspect)
     {
@@ -96,16 +94,17 @@ public class ConspectRepository : IConspect
 
         if (!string.IsNullOrWhiteSpace(sortBy.SearchTitle))
         {
-            filter &= builder.Regex(x => x.Title,
-                new MongoDB.Bson.BsonRegularExpression(sortBy.SearchTitle, "i"));
+            filter &= builder.Regex(
+                x => x.Title,
+                new MongoDB.Bson.BsonRegularExpression(sortBy.SearchTitle, "i")
+            );
         }
-        var sort = sortBy.SortDirection?.ToLower() == "desc"
-            ? Builders<Conspect>.Sort.Descending(sortBy.SortBy)
-            : Builders<Conspect>.Sort.Ascending(sortBy.SortBy);
-        
-        return await _conspectCollection
-            .Find(filter)
-            .Sort(sort)
-            .ToListAsync();
+        var sort =
+            sortBy.SortDirection?.ToLower() == "desc"
+                ? Builders<Conspect>.Sort.Descending(sortBy.SortBy)
+                : Builders<Conspect>.Sort.Ascending(sortBy.SortBy);
+
+        return await _conspectCollection.Find(filter).Sort(sort).ToListAsync();
     }
 }
+

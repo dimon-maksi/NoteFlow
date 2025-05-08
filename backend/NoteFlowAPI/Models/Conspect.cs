@@ -34,9 +34,9 @@ public class Conspect
     public string? UserId { get; set; }
 
     [Required]
+    [BsonElement("isPrivate")]
     public bool IsPrivate { get; set; } = false;
 
     [BsonElement("allowedUsers")]
-    public List<Guid> AllowedUserIds { get; set; } = new List<Guid>();
+    public List<string> AllowedUserIds { get; set; } = new List<string>();
 }
-
