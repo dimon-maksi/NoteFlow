@@ -1,33 +1,51 @@
-namespace NoteFlowAPI.Data;
-
+using NoteFlowAPI.Helpers.QueryParam;
 using NoteFlowAPI.Models;
-using System.Threading.Tasks;
+
+namespace NoteFlowAPI.Interfaces;
 
 /// <summary>
-/// Interface defining operations for accessing and manipulating user data.
+/// Interface defining operations for accessing and manipulating conspect data.
 /// </summary>
-
-public interface IUserRepository
+public interface IConspectRepository
 {
     /// <summary>
-    /// Retrieves a user by their email address.
+    /// Retrieves all conspects.
     /// </summary>
-    /// <param name="email">The email address to search for.</param>
-    /// <returns>The user if found; otherwise, null.</returns>
-
-    Task<User?> GetUserByEmailAsync(string email);
-    
-    /// <summary>
-    /// Creates a new user in the data store.
-    /// </summary>
-    /// <param name="user">The user to create.</param>
-
-    Task CreateUserAsync(User user);
+    /// <returns>A list of all conspects.</returns>
+    Task<List<Conspect>> GetAllAsync();
 
     /// <summary>
-    /// Enables role changes
+    /// Retrieves conspects based on query parameters.
     /// </summary>
-    ///
-    Task UpdateUserAsync(User user);
+    /// <param name="queryParams">Query parameters for filtering and sorting.</param>
+    /// <returns>A filtered and sorted list of conspects.</returns>
+    Task<List<Conspect>> GetAsync(ConspectQueryParams queryParams);
+
+    /// <summary>
+    /// Retrieves a conspect by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to retrieve.</param>
+    /// <returns>The conspect if found; otherwise, null.</returns>
+    Task<Conspect?> GetByIdAsync(string id);
+
+    /// <summary>
+    /// Creates a new conspect in the data store.
+    /// </summary>
+    /// <param name="conspect">The conspect to create.</param>
+    Task CreateAsync(Conspect conspect);
+
+    /// <summary>
+    /// Updates an existing conspect in the data store.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to update.</param>
+    /// <param name="conspect">The updated conspect data.</param>
+    /// <exception cref="KeyNotFoundException">Thrown when the conspect is not found.</exception>
+    Task UpdateAsync(string id, Conspect conspect);
+
+    /// <summary>
+    /// Deletes a conspect from the data store.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to delete.</param>
+    /// <exception cref="KeyNotFoundException">Thrown when the conspect is not found.</exception>
+    Task DeleteAsync(string id);
 }
-
