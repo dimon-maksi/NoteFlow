@@ -9,7 +9,7 @@ namespace NoteFlowAPI.Services;
 /// </summary>
 public class ConspectService : IConspectService
 {
-    private readonly IConspect _conspectRepository;
+    private readonly IConspectRepository _conspectRepository;
     private readonly ILogger<ConspectService> _logger;
 
     /// <summary>
@@ -17,7 +17,7 @@ public class ConspectService : IConspectService
     /// </summary>
     /// <param name="conspectRepository">Repository for conspect data access.</param>
     /// <param name="logger">Logger for diagnostic information.</param>
-    public ConspectService(IConspect conspectRepository, ILogger<ConspectService> logger)
+    public ConspectService(IConspectRepository conspectRepository, ILogger<ConspectService> logger)
     {
         _conspectRepository = conspectRepository;
         _logger = logger;
