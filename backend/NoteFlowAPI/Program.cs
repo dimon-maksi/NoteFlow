@@ -4,27 +4,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using NoteFlowAPI.Data;
-using NoteFlowAPI.Middleware;
-using NoteFlowAPI.Services;
 using NoteFlowAPI.Interfaces;
+using NoteFlowAPI.Middleware;
 using NoteFlowAPI.Repository;
+using NoteFlowAPI.Services;
 
 DotEnv.Load(options: new DotEnvOptions(envFilePaths: new[] { "../.env" }));
 var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Database services
 builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<IMongoDatabase>(provider =>
     provider.GetRequiredService<MongoDbService>().Database
 );
+
+// Authentication services
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<TokenBlacklistService>();
 
+// Repository services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IConspectRepository, ConspectRepository>();
+
+// Business logic services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IConspect, ConspectRepository>();
-builder.Services.AddScoped<ConspectServices>();
+builder.Services.AddScoped<IConspectService, ConspectService>();
 
 builder.Services.AddControllers();
 
@@ -35,7 +41,8 @@ var jwtSecret =
 var jwtIssuer = configuration["JWT_ISSUER"];
 var jwtAudience = configuration["JWT_AUDIENCE"];
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -66,8 +73,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-// app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();

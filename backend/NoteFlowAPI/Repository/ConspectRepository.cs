@@ -1,21 +1,34 @@
-﻿using NoteFlowAPI.Models;
-using NoteFlowAPI.Interfaces;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using NoteFlowAPI.Helpers.QueryParam;
+using NoteFlowAPI.Interfaces;
+using NoteFlowAPI.Models;
 
 namespace NoteFlowAPI.Repository;
 
-public class ConspectRepository : IConspect
+/// <summary>
+/// MongoDB implementation of the conspect repository.
+/// </summary>
+public class ConspectRepository : IConspectRepository
 {
     private readonly IMongoCollection<Conspect> _conspectCollection;
+    private readonly ILogger<ConspectRepository> _logger;
 
-    public ConspectRepository(IMongoDatabase database)
+    /// <summary>
+    /// Initializes a new instance of the ConspectRepository class.
+    /// </summary>
+    /// <param name="database">The MongoDB database.</param>
+    /// <param name="logger">Logger for diagnostic information.</param>
+    public ConspectRepository(IMongoDatabase database, ILogger<ConspectRepository> logger)
     {
         _conspectCollection = database.GetCollection<Conspect>("conspect");
+        _logger = logger;
     }
-    
-    
-    public async Task<List<Conspect>> GetAsync()
+
+    /// <summary>
+    /// Retrieves all conspects.
+    /// </summary>
+    /// <returns>A list of all conspects.</returns>
+    public async Task<List<Conspect>> GetAllAsync()
     {
         try
         {
@@ -23,12 +36,52 @@ public class ConspectRepository : IConspect
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error geting conspect: {ex.Message}");
+            _logger.LogError(ex, "Error retrieving all conspects");
             throw;
         }
     }
 
-    public async Task<Conspect> GetByIdAsync(string id)
+    /// <summary>
+    /// Retrieves conspects based on query parameters.
+    /// </summary>
+    /// <param name="queryParams">Query parameters for filtering and sorting.</param>
+    /// <returns>A filtered and sorted list of conspects.</returns>
+    public async Task<List<Conspect>> GetAsync(ConspectQueryParams queryParams)
+    {
+        try
+        {
+            var builder = Builders<Conspect>.Filter;
+            var filter = builder.Empty;
+
+            if (!string.IsNullOrWhiteSpace(queryParams.SearchTitle))
+            {
+                filter &= builder.Regex(
+                    x => x.Title,
+                    new MongoDB.Bson.BsonRegularExpression(queryParams.SearchTitle, "i")
+                );
+            }
+
+            var sortField = queryParams.SortBy ?? "title";
+            var sortDirection =
+                queryParams.SortDirection?.ToLower() == "desc"
+                    ? Builders<Conspect>.Sort.Descending(sortField)
+                    : Builders<Conspect>.Sort.Ascending(sortField);
+
+            return await _conspectCollection.Find(filter).Sort(sortDirection).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving conspects with query parameters");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a conspect by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to retrieve.</param>
+    /// <returns>The conspect if found; otherwise, null.</returns>
+    public async Task<Conspect?> GetByIdAsync(string id)
     {
         try
         {
@@ -36,11 +89,15 @@ public class ConspectRepository : IConspect
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting conspect by id: {ex.Message}");
+            _logger.LogError(ex, "Error retrieving conspect with ID: {Id}", id);
             throw;
         }
     }
 
+    /// <summary>
+    /// Creates a new conspect in the data store.
+    /// </summary>
+    /// <param name="conspect">The conspect to create.</param>
     public async Task CreateAsync(Conspect conspect)
     {
         try
@@ -49,12 +106,17 @@ public class ConspectRepository : IConspect
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error creating conspect: {ex.Message}");
+            _logger.LogError(ex, "Error creating conspect");
             throw;
         }
     }
 
-
+    /// <summary>
+    /// Updates an existing conspect in the data store.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to update.</param>
+    /// <param name="conspect">The updated conspect data.</param>
+    /// <exception cref="KeyNotFoundException">Thrown when the conspect is not found.</exception>
     public async Task UpdateAsync(string id, Conspect conspect)
     {
         try
@@ -65,13 +127,22 @@ public class ConspectRepository : IConspect
                 throw new KeyNotFoundException($"Conspect with ID {id} not found.");
             }
         }
+        catch (KeyNotFoundException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error updating conspect: {ex.Message}");
+            _logger.LogError(ex, "Error updating conspect with ID: {Id}", id);
             throw;
         }
     }
 
+    /// <summary>
+    /// Deletes a conspect from the data store.
+    /// </summary>
+    /// <param name="id">The ID of the conspect to delete.</param>
+    /// <exception cref="KeyNotFoundException">Thrown when the conspect is not found.</exception>
     public async Task DeleteAsync(string id)
     {
         try
@@ -82,30 +153,14 @@ public class ConspectRepository : IConspect
                 throw new KeyNotFoundException($"Conspect with ID {id} not found.");
             }
         }
-        catch (Exception ex)
+        catch (KeyNotFoundException)
         {
-            Console.WriteLine($"Error deleting book: {ex.Message}");
             throw;
         }
-    }
-
-    public async Task<List<Conspect>> GetAsync(ConspectQueryParams sortBy)
-    {
-        var builder = Builders<Conspect>.Filter;
-        var filter = builder.Empty;
-
-        if (!string.IsNullOrWhiteSpace(sortBy.SearchTitle))
+        catch (Exception ex)
         {
-            filter &= builder.Regex(x => x.Title,
-                new MongoDB.Bson.BsonRegularExpression(sortBy.SearchTitle, "i"));
+            _logger.LogError(ex, "Error deleting conspect with ID: {Id}", id);
+            throw;
         }
-        var sort = sortBy.SortDirection?.ToLower() == "desc"
-            ? Builders<Conspect>.Sort.Descending(sortBy.SortBy)
-            : Builders<Conspect>.Sort.Ascending(sortBy.SortBy);
-        
-        return await _conspectCollection
-            .Find(filter)
-            .Sort(sort)
-            .ToListAsync();
     }
 }

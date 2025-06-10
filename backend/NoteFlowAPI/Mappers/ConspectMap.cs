@@ -14,7 +14,10 @@ public static class ConspectMap
             Type = conspect.Type,
             Description = conspect.Description,
             Text = conspect.Text,
-            DateTime = conspect.DateTime
+            DateTime = conspect.DateTime,
+            UserId = conspect.UserId,
+            IsPrivate = conspect.IsPrivate,
+            AllowedUserIds = conspect.AllowedUserIds,
         };
     }
 
@@ -26,7 +29,9 @@ public static class ConspectMap
             Type = dto.Type,
             Description = dto.Description,
             Text = dto.Text,
-            DateTime = DateTime.UtcNow
+            DateTime = DateTime.UtcNow,
+            IsPrivate = false,
+            AllowedUserIds = new List<string>(),
         };
     }
 
@@ -38,3 +43,4 @@ public static class ConspectMap
         conspect.Text = dto.Text;
     }
 }
+

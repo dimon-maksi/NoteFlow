@@ -1,7 +1,7 @@
 namespace NoteFlowAPI.Data;
 
-using NoteFlowAPI.Models;
 using System.Threading.Tasks;
+using NoteFlowAPI.Models;
 
 /// <summary>
 /// Interface defining operations for accessing and manipulating user data.
@@ -16,7 +16,7 @@ public interface IUserRepository
     /// <returns>The user if found; otherwise, null.</returns>
 
     Task<User?> GetUserByEmailAsync(string email);
-    
+
     /// <summary>
     /// Creates a new user in the data store.
     /// </summary>
@@ -30,4 +30,3 @@ public interface IUserRepository
     ///
     Task UpdateUserAsync(User user);
 }
-
